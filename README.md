@@ -1,46 +1,25 @@
-# YOLOv3
-Keras(TF backend) implementation of yolo v3 objects detection. 
+# YOLO: Keras vs OpenCV
 
-According to the paper [YOLOv3: An Incremental Improvement](https://pjreddie.com/media/files/papers/YOLOv3.pdf).
+This is a slight modification of https://github.com/xiaochus/YOLOv3 to accept different config files. For instance this version can run tiny yolo.
 
-## Requirement
-- OpenCV 3.4
-- Python 3.6    
-- Tensorflow-gpu 1.5.0  
-- Keras 2.1.3
-
-## Quick start
-
-- Download official [yolov3.weights](https://pjreddie.com/media/files/yolov3.weights) and put it on top floder of project.
-
-- Run the follow command to convert darknet weight file to keras h5 file. The `yad2k.py` was modified from [allanzelener/YAD2K](https://github.com/allanzelener/YAD2K).
+## Installation
+Simply run:
 ```
-python yad2k.py cfg\yolo.cfg yolov3.weights data\yolo.h5
+make
 ```
+This will download all necessary config files, weights, and compile them to keras format.
 
-- run follow command to show the demo. The result can be found in `images\res\` floder.
+## Demos
+To run the keras demo do:
 ```
 python demo.py
 ```
+For the opencv version run:
+```
+python demo_opencv.py
+```
+This will save the results in folder `images/res/`.
 
-## Demo result
+As pointed out by Satya Mallick in [this post](https://www.learnopencv.com/deep-learning-based-object-detection-using-yolov3-with-opencv-python-c/) the opencv is significantly faster (atleast 5x). The speedup may be partly due to the fact that in opencv version the image is read in with channels first (facilitated by `cv.dnn.blobFromImage`).
 
-It can be seen that yolo v3 has a better classification ability than yolo v2.
-
-<img width="400" height="350" src="/images/res/dog.jpg"/><img width="400" height="350" src="/images/res/person.jpg"/>
-
-## TODO
-
-- Train the model.
-
-## Reference
-
-	@article{YOLOv3,  
-	  title={YOLOv3: An Incremental Improvement},  
-	  author={J Redmon, A Farhadi },
-	  year={2018}
-
-
-
-## Copyright
-See [LICENSE](LICENSE) for details.
+It should be noted that the keras version can run on a Nvidia GPU if available, while the openCV support for this seems experimental.

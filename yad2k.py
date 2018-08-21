@@ -14,7 +14,7 @@ from collections import defaultdict
 import numpy as np
 from keras import backend as K
 from keras.layers import (Conv2D, GlobalAveragePooling2D, Input, Reshape,
-                          ZeroPadding2D, UpSampling2D, Activation)
+                          ZeroPadding2D, UpSampling2D, Activation, MaxPool2D)
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.merge import concatenate, add
 from keras.layers.normalization import BatchNormalization
@@ -199,6 +199,15 @@ def _main(args):
                 act_layer = LeakyReLU(alpha=0.1)(prev_layer)
                 prev_layer = act_layer
                 all_layers.append(act_layer)
+
+        elif section.startswith('maxpool'):
+            size = int(cfg_parser[section]['size'])
+            stride = int(cfg_parser[section]['stride'])
+            all_layers.append(MaxPool2D(pool_size=(size, size),
+                                        strides=(stride, stride),
+                                        padding='same')(prev_layer)
+                             )
+            prev_layer = all_layers[-1]
 
         elif section.startswith('avgpool'):
             if cfg_parser.items(section) != []:

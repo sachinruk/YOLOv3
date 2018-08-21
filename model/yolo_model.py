@@ -6,7 +6,7 @@ from keras.models import load_model
 
 
 class YOLO:
-    def __init__(self, obj_threshold, nms_threshold):
+    def __init__(self, obj_threshold, nms_threshold, name='data/yolo.h5'):
         """Init.
 
         # Arguments
@@ -15,7 +15,7 @@ class YOLO:
         """
         self._t1 = obj_threshold
         self._t2 = nms_threshold
-        self._yolo = load_model('data/yolo.h5')
+        self._yolo = load_model(name)
 
     def _process_feats(self, out, anchors, mask):
         """process output features.

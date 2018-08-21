@@ -6,8 +6,6 @@ import cv2
 import numpy as np
 from model.yolo_model import YOLO
 
-IM_WIDTH = 608
-IM_HEIGHT = IM_WIDTH
 
 def process_image(img):
     """Resize, reduce and expand image.
@@ -18,7 +16,7 @@ def process_image(img):
     # Returns
         image: ndarray(64, 64, 3), processed image.
     """
-    image = cv2.resize(img, (IM_WIDTH, IM_HEIGHT),
+    image = cv2.resize(img, (416, 416),
                        interpolation=cv2.INTER_CUBIC)
     image = np.array(image, dtype='float32')
     image /= 255.
@@ -87,13 +85,12 @@ def detect_image(image, yolo, all_classes):
         image: processed image.
     """
     pimage = process_image(image)
-    # pimage = cv2.dnn.blobFromImage(image, 1/255, (IM_WIDTH, IM_HEIGHT), [0,0,0], 1, crop=False)
 
-    # start = time.time()
+    start = time.time()
     boxes, classes, scores = yolo.predict(pimage, image.shape)
-    # end = time.time()
+    end = time.time()
 
-    # print('time: {0:.2f}s'.format(end - start))
+    print('time: {0:.2f}s'.format(end - start))
 
     if boxes is not None:
         draw(image, boxes, scores, classes, all_classes)
@@ -143,7 +140,8 @@ def detect_video(video, yolo, all_classes):
 
 
 if __name__ == '__main__':
-    yolo = YOLO(0.6, 0.5)
+    # Need to increase threshold and reduce NMS to get decent results with tiny
+    yolo = YOLO(0.75, 0.2, name='data/yolov3-tiny.h5')
     file = 'data/coco_classes.txt'
     all_classes = get_classes(file)
 
@@ -153,10 +151,12 @@ if __name__ == '__main__':
             for f in files:
                 print(f)
                 path = os.path.join(root, f)
-                start = time.time()
                 image = cv2.imread(path)
                 image = detect_image(image, yolo, all_classes)
-                end = time.time()
-                print('time: {0:.2f}s'.format(end - start))
-                cv2.imwrite('images/res/' + f, image)
+                cv2.imwrite('images/res/tiny_' + f, image)
+
+
+    # # detect videos one at a time in videos/test folder    
+    # video = 'library1.mp4'
+    # detect_video(video, yolo, all_classes)
     
