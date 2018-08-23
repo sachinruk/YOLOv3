@@ -1,5 +1,3 @@
-"""Demo for use yolo v3
-"""
 import os
 import time
 import cv2
@@ -66,8 +64,8 @@ def draw(image, boxes, scores, classes, all_classes):
                     0.6, (0, 0, 255), 1,
                     cv2.LINE_AA)
 
-        print('class: {0}, score: {1:.2f}'.format(all_classes[cl], score))
-        print('box coordinate x,y,w,h: {0}'.format(box))
+        # print('class: {0}, score: {1:.2f}'.format(all_classes[cl], score))
+        # print('box coordinate x,y,w,h: {0}'.format(box))
 
     print()
 
@@ -90,24 +88,4 @@ def detect_image(image, yolo, all_classes):
         draw(image, boxes, scores, classes, all_classes)
 
     return image
-    
-
-
-if __name__ == '__main__':
-    yolo = YOLO(0.6, 0.5)
-    file = 'data/coco_classes.txt'
-    all_classes = get_classes(file)
-
-    # detect images in test floder.
-    for (root, dirs, files) in os.walk('images/test'):
-        if files:
-            for f in files:
-                print(f)
-                path = os.path.join(root, f)
-                start = time.time()
-                image = cv2.imread(path)
-                image = detect_image(image, yolo, all_classes)
-                end = time.time()
-                print('time: {0:.2f}s'.format(end - start))
-                cv2.imwrite('images/res/' + f, image)
     

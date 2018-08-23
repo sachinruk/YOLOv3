@@ -17,7 +17,7 @@ class YOLO:
         self._t2 = nms_threshold
         self._yolo = load_model(name)
 
-    def _process_feats(self, out, anchors, mask):
+    def _process_feats(self, out, anchors, mask, im_shape):
         """process output features.
 
         # Arguments
@@ -36,23 +36,22 @@ class YOLO:
         # Reshape to batch, height, width, num_anchors, box_params.
         anchors_tensor = K.reshape(K.variable(anchors),
                                    [1, 1, len(anchors), 2])
-        out = out[0]
+        # out = out[0]
         box_xy = K.get_value(K.sigmoid(out[..., :2]))
         box_wh = K.get_value(K.exp(out[..., 2:4]) * anchors_tensor)
         box_confidence = K.get_value(K.sigmoid(out[..., 4]))
         box_confidence = np.expand_dims(box_confidence, axis=-1)
         box_class_probs = K.get_value(K.sigmoid(out[..., 5:]))
 
-        col = np.tile(np.arange(0, grid_w), grid_w).reshape(-1, grid_w)
-        row = np.tile(np.arange(0, grid_h).reshape(-1, 1), grid_h)
-
+        col, row = np.meshgrid(np.arange(0, grid_w), np.arange(0, grid_h))
         col = col.reshape(grid_h, grid_w, 1, 1).repeat(3, axis=-2)
         row = row.reshape(grid_h, grid_w, 1, 1).repeat(3, axis=-2)
         grid = np.concatenate((col, row), axis=-1)
 
         box_xy += grid
         box_xy /= (grid_w, grid_h)
-        box_wh /= (416, 416)
+        # from IPython.core.debugger import Tracer; Tracer()()
+        box_wh /= im_shape
         box_xy -= (box_wh / 2.)
         boxes = np.concatenate((box_xy, box_wh), axis=-1)
 
@@ -141,7 +140,7 @@ class YOLO:
         boxes, classes, scores = [], [], []
 
         for out, mask in zip(outs, masks):
-            b, c, s = self._process_feats(out, anchors, mask)
+            b, c, s = self._process_feats(out, anchors, mask, shape[:2])
             b, c, s = self._filter_boxes(b, c, s)
             boxes.append(b)
             classes.append(c)
